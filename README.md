@@ -50,6 +50,25 @@ Unpacks an edited video exported from OpenReel into IMAGE frames, AUDIO, and fps
 - `audio` (AUDIO) — extracted audio (or None if no audio track)
 - `fps` (FLOAT) — frame rate
 
+## Installation
+
+### Prerequisites
+
+- [ComfyUI](https://github.com/comfyanonymous/ComfyUI) installed
+- [ComfyUI Viewer](https://github.com/WASasquatch/ComfyUI_Viewer)  **v0.3.0 or higher** installed
+
+### Install Steps
+
+1. **Download the ZIP from GitHub**
+
+![Download Zip](screenshots/download.jpg)
+
+2. **Extract the ZIP to your `ComfyUI/custom_nodes/ComfyUI_Viewer/extensions` folder**
+3. **Restart ComfyUI** and the extension will be installed and loaded.
+
+![Installation Log](screenshots/installation.jpg)
+
+
 ## Workflow Setup
 
 **It's highly recommended to use a pause node** to prevent the workflow from continuing while you edit your video in OpenReel.
