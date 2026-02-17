@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Ruff cache
+.ruff_cache/
+
+# Built OpenReel app (download from releases)
+apps/openreel_app/assets/
+apps/openreel_app/workers/
+apps/openreel_app/*.html
+apps/openreel_app/*.js
+apps/openreel_app/*.json
+apps/openreel_app/*.svg
+apps/openreel_app/_headers
+apps/openreel_app/_redirects
+
+# Keep the directory structure
+!apps/openreel_app/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Windows WSL
+*:Zone.Identifier
+*.Zone.Identifier

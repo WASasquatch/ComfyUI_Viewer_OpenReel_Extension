@@ -1,0 +1,2 @@
+# No extra dependencies required.
+# ComfyUI already includes PyAV (av>=14.2.0) for video encoding/decoding.
