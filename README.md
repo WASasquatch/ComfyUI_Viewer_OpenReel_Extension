@@ -1,6 +1,11 @@
 # ComfyUI Viewer - OpenReel Video Extension
 
+![Image Search](https://img.shields.io/badge/ComfyUI_Viewer-Extension-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 Embeds a [modified fork of OpenReel Video](https://github.com/WASasquatch/openreel-video-comfyui) into ComfyUI_Viewer for interactive video editing within ComfyUI workflows.
+
+![Screenshot 1](screenshots/screenshot.jpg)
 
 ## Features
 
