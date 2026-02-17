@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Reload-loop guard for embedded (ComfyUI iframe) mode.
+      // Must be in <head> BEFORE the Vite module script so we can
+      // remove it before the browser fetches/executes it.
+      (function() {
+        if (new URLSearchParams(location.search).get('embedded') !== 'true') return;
+        var KEY = '__openreel_guard';
+        var MAX_LOADS = 3;
+        var WINDOW_MS = 2000;
+        try {
+          var now = Date.now();
+          var raw = sessionStorage.getItem(KEY);
+          var times = raw ? JSON.parse(raw) : [];
+          times = times.filter(function(t) { return now - t < WINDOW_MS; });
+          times.push(now);
+          sessionStorage.setItem(KEY, JSON.stringify(times));
+          if (times.length > MAX_LOADS) {
+            // Too many rapid loads — remove all module scripts so the
+            // app never boots.  We do this synchronously before the
+            // browser starts fetching the modules.
+            document.querySelectorAll('script[type="module"]').forEach(function(s) { s.remove(); });
+            // Also prevent any future module scripts added by Vite
+            var origCreate = document.createElement;
+            document.createElement = function(tag) {
+              var el = origCreate.call(document, tag);
+              if (tag.toLowerCase() === 'script') {
+                Object.defineProperty(el, 'type', {
+                  set: function(v) { if (v === 'module') { /* block */ } },
+                  get: function() { return ''; }
+                });
+              }
+              return el;
+            };
+            // Show a static waiting message
+            window.addEventListener('DOMContentLoaded', function() {
+              document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:var(--theme-bg,#1a1a2e);color:#888;font-family:sans-serif;font-size:14px;">Waiting for content\u2026</div>';
+            });
+            // Notify parent
+            if (window.parent !== window) {
+              window.parent.postMessage({ type: 'openreel-ready' }, '*');
+            }
+            // Listen for content — clean reload when video arrives
+            window.addEventListener('message', function(e) {
+              if (e.data && e.data.type === 'comfyui-import-video') {
+                sessionStorage.removeItem(KEY);
+                location.reload();
+              }
+            });
+          }
+        } catch(e) {}
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/was/openreel_video/app/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="description" content="Professional browser-based video, audio, and photo editing application" />
+    <link rel="manifest" href="/was/openreel_video/app/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alfa+Slab+One&family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Black+Ops+One&family=Bungee&family=Caveat:wght@400;700&family=Cinzel:wght@400;700;900&family=Comfortaa:wght@300;400;700&family=Concert+One&family=Creepster&family=Dancing+Script:wght@400;700&family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=Fredoka+One&family=Great+Vibes&family=Inter:wght@300;400;500;600;700;800;900&family=Lato:wght@300;400;700;900&family=Lexend:wght@300;400;500;600;700&family=Lobster&family=Lora:wght@400;500;600;700&family=Merriweather:wght@300;400;700;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Nunito:wght@300;400;600;700;800&family=Open+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Press+Start+2P&family=Quicksand:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&family=Righteous&family=Roboto:wght@300;400;500;700;900&family=Roboto+Condensed:wght@300;400;700&family=Roboto+Mono:wght@300;400;500;700&family=Roboto+Slab:wght@300;400;500;700&family=Rock+Salt&family=Rubik:wght@300;400;500;600;700;800&family=Sacramento&family=Satisfy&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Staatliches&family=Teko:wght@300;400;500;600;700&family=Titan+One&family=Ubuntu:wght@300;400;500;700&family=Work+Sans:wght@300;400;500;600;700;800&family=Yellowtail&family=Zilla+Slab:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>OpenReel Video - Professional Video Editor</title>
+    <script type="module" crossorigin src="/was/openreel_video/app/assets/index.js"></script>
+    <link rel="modulepreload" crossorigin href="/was/openreel_video/app/assets/react.js">
+    <link rel="modulepreload" crossorigin href="/was/openreel_video/app/assets/zustand.js">
+    <link rel="modulepreload" crossorigin href="/was/openreel_video/app/assets/radix.js">
+    <link rel="modulepreload" crossorigin href="/was/openreel_video/app/assets/three.js">
+    <link rel="stylesheet" crossorigin href="/was/openreel_video/app/assets/index.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

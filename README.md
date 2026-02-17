@@ -1,6 +1,6 @@
 # ComfyUI Viewer - OpenReel Video Extension
 
-Embeds a [modified fork of OpenReel Video](https://github.com/WASasquatch/openreel-video-comfyui) into ComfyUI_Viewer for interactive video editing within ComfyUI workflows.
+Embeds the [OpenReel Video](https://github.com/augani/openreel) editor into ComfyUI_Viewer for interactive video editing.
 
 ## Features
 
@@ -122,75 +122,28 @@ We recommend [ComfyUI-pause](https://github.com/wywywywy/ComfyUI-pause)
 
 ## Installation
 
-### Option 1: Install via ComfyUI Manager (Recommended)
-
-1. Open ComfyUI Manager
-2. Search for "OpenReel Video Extension"
-3. Click Install
-4. Restart ComfyUI
-
-### Option 2: Manual Installation
-
-1. **Install ComfyUI_Viewer** if not already installed:
-   ```bash
-   cd ComfyUI/custom_nodes/
-   git clone https://github.com/WASasquatch/ComfyUI_Viewer.git
-   ```
-
-2. **Clone this extension**:
-   ```bash
-   cd ComfyUI/custom_nodes/
-   git clone https://github.com/WASasquatch/ComfyUI_Viewer_OpenReel_Extension.git
-   ```
-
-3. **Download the built OpenReel app**:
-   - Go to [Releases](https://github.com/WASasquatch/openreel-video-comfyui/releases)
-   - Download the latest `openreel-app-vX.X.X.zip`
-   - Extract the contents into `ComfyUI_Viewer_OpenReel_Extension/apps/openreel_app/`
-   
-   The directory structure should look like:
-   ```
-   ComfyUI_Viewer_OpenReel_Extension/
-   └── apps/
-       └── openreel_app/
-           ├── assets/
-           ├── workers/
-           ├── index.html
-           ├── manifest.json
-           └── ...
-   ```
-
-4. **Restart ComfyUI**
-
-5. The OpenReel nodes will appear in the node menu under `WAS/View`
-
-### Verifying Installation
-
-After restarting ComfyUI, you should see these nodes:
-- `CV OpenReel Bundle Video`
-- `CV OpenReel Import Video`
-- `CV OpenReel Unpack`
-
-If the nodes don't appear, check the ComfyUI console for errors.
+1. Install ComfyUI_Viewer if not already installed
+2. Place this folder in `ComfyUI/custom_nodes/` directory alongside `ComfyUI_Viewer`
+3. Restart ComfyUI
+4. The OpenReel nodes will appear in the node menu under `WAS/View`
 
 ## Architecture
 
 This extension demonstrates ComfyUI_Viewer's `/app` functionality for embedding full web applications:
 
 - **Frontend**: Modified OpenReel React app served from `/was/openreel_video/app/`
-  - Source: [openreel-video-comfyui](https://github.com/WASasquatch/openreel-video-comfyui) (fork with ComfyUI integration)
-  - Built app distributed via GitHub Releases (not included in repository)
+  - Built app included in `apps/openreel_app/` (~3.7 MB)
+  - Source code: [openreel-video-comfyui](https://github.com/WASasquatch/openreel-video-comfyui) (fork with ComfyUI integration)
 - **Backend**: Python nodes handle video I/O and session management
 - **Communication**: PostMessage API for iframe ↔ ComfyUI communication
 - **Parser**: Custom parser (`openreel_video_parser.py`) handles input/output data flow
 
-### Why Separate Repositories?
+### Repository Structure
 
-- **Extension repository** (this repo): Python nodes, parsers, and integration code (~200 KB)
-- **App source repository** ([openreel-video-comfyui](https://github.com/WASasquatch/openreel-video-comfyui)): React app source code (~7 MB)
-- **Built app**: Distributed as release artifacts (~3.7 MB compressed)
+- **Extension repository** (this repo): Complete package with Python nodes, built app, and integration code (~4 MB)
+- **App source repository** ([openreel-video-comfyui](https://github.com/WASasquatch/openreel-video-comfyui)): React app source code for contributors who want to modify the app (~7 MB source)
 
-This separation keeps the extension repository lightweight while allowing contributors to build and modify the OpenReel app independently.
+The built app is included directly in this repository for convenience. If you want to modify the OpenReel app itself, see the source repository.
 
 See ComfyUI_Viewer's README for details on creating your own viewer extensions with embedded apps.
 
