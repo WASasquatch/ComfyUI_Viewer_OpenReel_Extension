@@ -137,19 +137,7 @@ We recommend [ComfyUI-pause](https://github.com/wywywywy/ComfyUI-pause)
 
 **Workaround**: Use a **soft refresh** (Ctrl+R / Cmd+R or F5) instead. This issue does not occur in Chrome/Edge.
 
-**Technical Details**: Firefox's aggressive cache invalidation on hard refresh causes module loading failures in the iframe context. This is a browser-specific behavior and does not affect normal workflow usage.
-
-## Requirements
-
-- ComfyUI with PyAV (`av>=14.2.0`, included by default in most ComfyUI distributions)
-- [ComfyUI_Viewer](https://github.com/WASasquatch/ComfyUI_Viewer) extension (must be installed first)
-
-## Installation
-
-1. Install ComfyUI_Viewer if not already installed
-2. Place this folder in `ComfyUI/custom_nodes/` directory alongside `ComfyUI_Viewer`
-3. Restart ComfyUI
-4. The OpenReel nodes will appear in the node menu under `WAS/View`
+**Technical Details**: Use Chrome! Firefox's aggressive cache invalidation on hard refresh causes module loading failures in the iframe context. This is a browser-specific behavior and does not affect normal workflow usage.
 
 ## Architecture
 
