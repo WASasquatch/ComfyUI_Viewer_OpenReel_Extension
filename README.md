@@ -9,7 +9,7 @@ Embeds a [modified fork of OpenReel Video](https://github.com/WASasquatch/openre
 
 ## Features
 
-- **Full-featured video editor** embedded in ComfyUI with timeline, effects, transitions, and text overlays
+- **Featured rich video editor** embedded in ComfyUI with timeline, effects, transitions, and text overlays. ***Work in progress***
 - **Seamless integration** with ComfyUI's theme system (dark/light mode sync)
 - **Direct workflow integration** import videos, edit in OpenReel, export back to ComfyUI nodes
 - **Standalone mode** launch OpenReel in a new tab for full-screen editing
