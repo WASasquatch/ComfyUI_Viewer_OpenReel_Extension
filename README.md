@@ -1,6 +1,6 @@
 # ComfyUI Viewer - OpenReel Video Extension
 
-Embeds the [OpenReel Video](https://github.com/augani/openreel) editor into ComfyUI_Viewer for interactive video editing.
+Embeds a [modified fork of OpenReel Video](https://github.com/WASasquatch/openreel-video-comfyui) into ComfyUI_Viewer for interactive video editing within ComfyUI workflows.
 
 ## Features
 
