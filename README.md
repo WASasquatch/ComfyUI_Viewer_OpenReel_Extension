@@ -55,7 +55,7 @@ Unpacks an edited video exported from OpenReel into IMAGE frames, AUDIO, and fps
 ### Prerequisites
 
 - [ComfyUI](https://github.com/comfyanonymous/ComfyUI) installed
-- [ComfyUI Viewer](https://github.com/WASasquatch/ComfyUI_Viewer)  **v0.3.0 or higher** installed
+- [ComfyUI Viewer](https://github.com/WASasquatch/ComfyUI_Viewer)  **v0.4.0 or higher** installed
 
 ### Install Steps
 
