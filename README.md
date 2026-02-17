@@ -63,7 +63,7 @@ Unpacks an edited video exported from OpenReel into IMAGE frames, AUDIO, and fps
 
 ![Download Zip](screenshots/download.jpg)
 
-2. **Extract the ZIP to your `ComfyUI/custom_nodes/ComfyUI_Viewer/extensions` folder**
+2. **Copy the ZIP to your `ComfyUI/custom_nodes/ComfyUI_Viewer/extensions` folder**
 3. **Restart ComfyUI** and the extension will be installed and loaded.
 
 ![Installation Log](screenshots/installation.jpg)
