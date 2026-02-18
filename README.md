@@ -13,7 +13,7 @@ Embeds a [modified fork of OpenReel Video](https://github.com/WASasquatch/openre
 - **Seamless integration** with ComfyUI's theme system (dark/light mode sync)
 - **Direct workflow integration** import videos, edit in OpenReel, export back to ComfyUI nodes
 - **Standalone mode** launch OpenReel in a new tab for full-screen editing
-- **No external dependencies** all processing happens locally in your browser
+- **100% local processing** all video editing and export happens offline in your browser (FFmpeg.wasm bundled, ~35MB total)
 
 ## Nodes
 
