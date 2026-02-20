@@ -14,6 +14,9 @@ Embeds a [modified fork of OpenReel Video](https://github.com/WASasquatch/openre
 - **Direct workflow integration** import videos, edit in OpenReel, export back to ComfyUI nodes
 - **Standalone mode** launch OpenReel in a new tab for full-screen editing
 - **100% local processing** all video editing and export happens offline in your browser (FFmpeg.wasm bundled, ~35MB total)
+- **Keyframe animation** with interactive timeline - drag keyframe diamonds to adjust timing, visual cursor differentiation
+- **Project management** rename projects via dropdown menu in top-left toolbar
+- **Improved UX** better z-index layering for keyframe editing at clip boundaries
 
 ## Nodes
 
