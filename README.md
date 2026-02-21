@@ -9,14 +9,17 @@ Embeds a [modified fork of OpenReel Video](https://github.com/WASasquatch/openre
 
 ## Features
 
-- **Featured rich video editor** embedded in ComfyUI with timeline, effects, transitions, and text overlays. ***Work in progress***
+- **Feature rich video editor** embedded in ComfyUI with timeline, effects, transitions, and text overlays. ***Work in progress***
 - **Seamless integration** with ComfyUI's theme system (dark/light mode sync)
-- **Direct workflow integration** import videos, edit in OpenReel, export back to ComfyUI nodes
+- **Direct workflow integration** import videos, images, and audio — edit in OpenReel, export back to ComfyUI nodes
+- **Backend render engine** server-side FFmpeg export for faster rendering without browser limitations
+- **Bundle system** combine video, images, and audio from separate workflow branches into a single OpenReel project
 - **Standalone mode** launch OpenReel in a new tab for full-screen editing
-- **100% local processing** all video editing and export happens offline in your browser (FFmpeg.wasm bundled, ~35MB total)
-- **Keyframe animation** with interactive timeline - drag keyframe diamonds to adjust timing, visual cursor differentiation
-- **Project management** rename projects via dropdown menu in top-left toolbar
-- **Improved UX** better z-index layering for keyframe editing at clip boundaries
+- **Local processing** video editing and export via browser FFmpeg.wasm or system FFmpeg
+- **Keyframe animation** with interactive timeline — drag keyframe diamonds to adjust timing
+- **Media management** auto-match re-imported media to placeholders, deterministic naming, delete missing assets
+- **Project management** rename projects, import/export project scripts
+- **Script import/export** save and load OpenReel project files for reuse across workflows
 
 ## Nodes
 
@@ -28,9 +31,42 @@ Bundles IMAGE frames and optional AUDIO from ComfyUI workflows into a video for 
 - `fps` (FLOAT, required) — frame rate (default 24.0, range 1.0-120.0)
 - `audio` (AUDIO, optional) — audio track to include in the video
 
-**Output:** `STRING` — tagged JSON for ComfyUI_Viewer's `content` input
+**Output:** `openreel_options` (STRING) — tagged JSON for ComfyUI_Viewer's `content` input
 
 **Use Case:** Edit videos generated within ComfyUI (e.g., from AnimateDiff, SVD, frame interpolation, etc.)
+
+### CV OpenReel Bundle Images
+Bundles IMAGE tensors as individual image files for editing in OpenReel. Unlike Bundle Video, each image becomes a separate clip on the timeline.
+
+**Inputs:**
+- `images` (IMAGE, required) — batch of images from any ComfyUI workflow
+
+**Output:** `openreel_options` (STRING) — tagged JSON for ComfyUI_Viewer's `content` input
+
+**Use Case:** Import generated images as individual timeline clips for compositing, slideshows, or mixed-media editing
+
+### CV OpenReel Bundle Audio
+Bundles AUDIO from ComfyUI workflows as a WAV file for editing in OpenReel.
+
+**Inputs:**
+- `audio` (AUDIO, required) — audio from any ComfyUI audio node
+
+**Output:** `openreel_options` (STRING) — tagged JSON for ComfyUI_Viewer's `content` input
+
+**Use Case:** Import generated or loaded audio as a timeline clip for mixing with video/images
+
+### CV OpenReel Bundle Combine
+Combines outputs from multiple Bundle nodes into a single import so OpenReel receives all assets at once.
+
+**Inputs:**
+- `bundle_a` (STRING, required) — output from any Bundle node
+- `bundle_b` (STRING, optional) — second bundle output
+- `bundle_c` (STRING, optional) — third bundle output
+- `bundle_d` (STRING, optional) — fourth bundle output
+
+**Output:** `openreel_options` (STRING) — combined tagged JSON for ComfyUI_Viewer's `content` input
+
+**Use Case:** Combine video + images + audio from different workflow branches into one OpenReel project
 
 ### CV OpenReel Import Video
 Loads an external video file and outputs tagged JSON for the Content Viewer to display in OpenReel.
@@ -38,7 +74,7 @@ Loads an external video file and outputs tagged JSON for the Content Viewer to d
 **Inputs:**
 - `video` (COMBO) — video file from ComfyUI's `input/` directory (with upload button)
 
-**Output:** `STRING` — tagged JSON for ComfyUI_Viewer's `content` input
+**Output:** `openreel_options` (STRING) — tagged JSON for ComfyUI_Viewer's `content` input
 
 **Use Case:** Edit existing video files from disk
 
@@ -90,6 +126,13 @@ We recommend [ComfyUI-pause](https://github.com/wywywywy/ComfyUI-pause)
 [Generate Frames] → [CV OpenReel Bundle Video] → [Content Viewer] → [Pause Node] → [CV OpenReel Unpack] → [Save Image/Video]
 ```
 
+**For Mixed Media (Video + Images + Audio):**
+```
+[Generate Frames] → [Bundle Video]  ─┐
+[Generate Images] → [Bundle Images] ─┤→ [Bundle Combine] → [Content Viewer] → [Pause] → [Unpack]
+[Load Audio]      → [Bundle Audio]  ─┘
+```
+
 ### How the Pause Workflow Works:
 
 1. **First Run ("Edit Run")**: The workflow runs and pauses at the Pause node
@@ -132,6 +175,8 @@ We recommend [ComfyUI-pause](https://github.com/wywywywy/ComfyUI-pause)
 - **Launch in new tab**: Click the external link icon in embedded mode to open OpenReel in a standalone tab for full-screen editing
 - **Theme sync**: OpenReel automatically matches ComfyUI's theme (dark/light mode)
 - **Persistent exports**: Once exported, the video persists in the workflow until you export a new one or change the input video
+- **Backend render**: Use the backend render option in the export menu for server-side FFmpeg encoding (faster, no browser memory limits)
+- **Script import/export**: Save your OpenReel project as a script file and re-import it in other workflows
 
 ## Known Issues
 
@@ -149,7 +194,7 @@ This extension demonstrates ComfyUI_Viewer's `/app` functionality for embedding 
 - **Frontend**: Modified OpenReel React app served from `/was/openreel_video/app/`
   - Built app included in `apps/openreel_app/` (~3.7 MB)
   - Source code: [openreel-video-comfyui](https://github.com/WASasquatch/openreel-video-comfyui) (fork with ComfyUI integration)
-- **Backend**: Python nodes handle video I/O and session management
+- **Backend**: Python nodes handle video I/O, session management, and server-side FFmpeg rendering
 - **Communication**: PostMessage API for iframe ↔ ComfyUI communication
 - **Parser**: Custom parser (`openreel_video_parser.py`) handles input/output data flow
 
