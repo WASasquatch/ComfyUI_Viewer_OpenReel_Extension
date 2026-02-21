@@ -105,7 +105,7 @@ class OpenReelVideoView extends BaseView {
         jsonContent = content.slice(this.OPENREEL_MARKER.length);
       }
       const parsed = JSON.parse(jsonContent);
-      if (parsed.type === "openreel_video") return parsed;
+      if (["openreel_video", "openreel_images", "openreel_audio", "openreel_combined"].includes(parsed.type)) return parsed;
     } catch {}
     return null;
   }
@@ -164,6 +164,53 @@ class OpenReelVideoView extends BaseView {
     if (!data) return null;
 
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+    if (data.type === 'openreel_images') {
+      const msg = { type: 'comfyui-import-images' };
+      if (data.image_urls && data.image_urls.length > 0) {
+        msg.imageUrls = data.image_urls.map(url => origin + url);
+      }
+      if (data.session_id) msg.sessionId = data.session_id;
+      if (data.duration_per_image) msg.durationPerImage = data.duration_per_image;
+      return msg;
+    }
+
+    if (data.type === 'openreel_audio') {
+      const msg = { type: 'comfyui-import-video' };
+      if (data.audio_url) {
+        msg.audioUrl = origin + data.audio_url;
+      }
+      if (data.session_id) msg.sessionId = data.session_id;
+      return msg;
+    }
+
+    if (data.type === 'openreel_combined') {
+      const entries = data.entries || [];
+      const imports = [];
+      for (const entry of entries) {
+        if (entry.type === 'openreel_video') {
+          const m = { type: 'comfyui-import-video' };
+          if (entry.video_url) m.url = origin + entry.video_url;
+          if (entry.audio_url) m.audioUrl = origin + entry.audio_url;
+          if (entry.session_id) m.sessionId = entry.session_id;
+          if (entry.fps) m.fps = entry.fps;
+          imports.push(m);
+        } else if (entry.type === 'openreel_images') {
+          const m = { type: 'comfyui-import-images' };
+          if (entry.image_urls) m.imageUrls = entry.image_urls.map(url => origin + url);
+          if (entry.session_id) m.sessionId = entry.session_id;
+          if (entry.duration_per_image) m.durationPerImage = entry.duration_per_image;
+          imports.push(m);
+        } else if (entry.type === 'openreel_audio') {
+          const m = { type: 'comfyui-import-video' };
+          if (entry.audio_url) m.audioUrl = origin + entry.audio_url;
+          if (entry.session_id) m.sessionId = entry.session_id;
+          imports.push(m);
+        }
+      }
+      return { type: 'comfyui-import-combined', imports };
+    }
+
     const msg = { type: 'comfyui-import-video' };
 
     if (data.has_video && data.video_url) {
@@ -188,7 +235,7 @@ class OpenReelVideoView extends BaseView {
         jsonContent = content.slice(this.OPENREEL_MARKER.length);
       }
       const parsed = JSON.parse(jsonContent);
-      if (parsed.type === "openreel_video") {
+      if (["openreel_video", "openreel_images", "openreel_audio", "openreel_combined"].includes(parsed.type)) {
         return 208;
       }
     } catch {}
@@ -266,9 +313,19 @@ class OpenReelVideoView extends BaseView {
 
     const appUrl = `${origin}/was/openreel_video/app/index.html?${appParams.toString()}`;
 
-    // Info bar showing video metadata
+    // Info bar showing media metadata
+    const contentType = data.type || 'openreel_video';
+    const imageCount = data.image_count || 0;
     const infoItems = [];
-    if (hasVideo) {
+    if (contentType === 'openreel_images') {
+      infoItems.push(`${width}×${height}`);
+      infoItems.push(`${imageCount} image${imageCount !== 1 ? 's' : ''}`);
+    } else if (contentType === 'openreel_audio') {
+      infoItems.push(`${data.channels || 1}ch`);
+      infoItems.push(`${data.sample_rate || 44100}Hz`);
+    } else if (contentType === 'openreel_combined') {
+      infoItems.push(`${data.entry_count || 0} asset${(data.entry_count || 0) !== 1 ? 's' : ''}`);
+    } else if (hasVideo) {
       infoItems.push(`${width}×${height}`);
       infoItems.push(`${frameCount} frames`);
       infoItems.push(`${fps} fps`);
@@ -276,10 +333,17 @@ class OpenReelVideoView extends BaseView {
     if (duration > 0) {
       infoItems.push(`${duration.toFixed(2)}s`);
     }
-    if (hasAudio && !hasVideo) {
+    if (hasAudio && !hasVideo && contentType === 'openreel_video') {
       infoItems.push('Audio only');
     }
 
+    const infoLabels = {
+      'openreel_video': 'OpenReel Video',
+      'openreel_images': 'OpenReel Images',
+      'openreel_audio': 'OpenReel Audio',
+      'openreel_combined': 'OpenReel Combined',
+    };
+    const infoLabel = infoLabels[contentType] || 'OpenReel';
     const infoText = infoItems.length > 0 ? infoItems.join(' · ') : 'No media';
 
     return `
@@ -387,7 +451,7 @@ class OpenReelVideoView extends BaseView {
       <div class="openreel-container">
         <div class="openreel-info-bar">
           <div class="info-left">
-            <span class="info-label">OpenReel Video</span>
+            <span class="info-label">${infoLabel}</span>
             <span class="info-meta">${infoText}</span>
           </div>
         </div>

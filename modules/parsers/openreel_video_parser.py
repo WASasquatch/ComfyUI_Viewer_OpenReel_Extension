@@ -82,33 +82,30 @@ class OpenReelVideoParser(BaseParser):
                 logger.error(f"[OpenReel Video Parser] Invalid JSON: {e}")
             return None
 
-        if options.get("type") != "openreel_video":
+        content_type = options.get("type")
+        valid_types = (
+            "openreel_video", "openreel_images",
+            "openreel_audio", "openreel_combined",
+        )
+        if content_type not in valid_types:
             return None
 
-        session_id = options.get("session_id", "")
-
-        # Build the display content with serve URLs for the frontend
-        display_data = {
-            "type": "openreel_video",
-            "session_id": session_id,
-            "has_video": options.get("has_video", False),
-            "has_audio": options.get("has_audio", False),
-            "width": options.get("width", 0),
-            "height": options.get("height", 0),
-            "frame_count": options.get("frame_count", 0),
-            "fps": options.get("fps", 24.0),
-            "duration": options.get("duration", 0.0),
-            "video_url": (
-                f"/was/openreel_video/serve?session_id={session_id}"
-                if options.get("has_video")
-                else None
-            ),
-            "audio_url": (
-                f"/was/openreel_video/serve_audio?session_id={session_id}"
-                if options.get("has_audio") and not options.get("has_video")
-                else None
-            ),
-        }
+        # For combined type, recursively resolve each entry's URLs
+        if content_type == "openreel_combined":
+            entries = options.get("entries", [])
+            resolved_entries = []
+            for entry in entries:
+                resolved_entries.append(
+                    cls._resolve_entry_urls(entry)
+                )
+            display_data = {
+                "type": "openreel_combined",
+                "entries": resolved_entries,
+                "entry_count": len(resolved_entries),
+                "duration": options.get("duration", 0.0),
+            }
+        else:
+            display_data = cls._resolve_entry_urls(options)
 
         display_content = cls.OPENREEL_MARKER + json.dumps(display_data)
 
@@ -122,6 +119,52 @@ class OpenReelVideoParser(BaseParser):
             "output_values": [display_content],
             "content_hash": content_hash,
         }
+
+    @classmethod
+    def _resolve_entry_urls(cls, options: dict) -> dict:
+        """Resolve serve URLs for a single bundle entry based on its type."""
+        content_type = options.get("type", "")
+        session_id = options.get("session_id", "")
+
+        display_data = {
+            "type": content_type,
+            "session_id": session_id,
+            "has_video": options.get("has_video", False),
+            "has_audio": options.get("has_audio", False),
+            "width": options.get("width", 0),
+            "height": options.get("height", 0),
+            "duration": options.get("duration", 0.0),
+        }
+
+        if content_type == "openreel_video":
+            display_data["frame_count"] = options.get("frame_count", 0)
+            display_data["fps"] = options.get("fps", 24.0)
+            display_data["video_url"] = (
+                f"/was/openreel_video/serve?session_id={session_id}"
+                if options.get("has_video")
+                else None
+            )
+            display_data["audio_url"] = (
+                f"/was/openreel_video/serve_audio?session_id={session_id}"
+                if options.get("has_audio") and not options.get("has_video")
+                else None
+            )
+        elif content_type == "openreel_images":
+            display_data["image_count"] = options.get("image_count", 0)
+            display_data["duration_per_image"] = options.get("duration_per_image", 5.0)
+            image_filenames = options.get("image_filenames", [])
+            display_data["image_urls"] = [
+                f"/was/openreel_video/serve_image?session_id={session_id}&filename={fn}"
+                for fn in image_filenames
+            ]
+        elif content_type == "openreel_audio":
+            display_data["sample_rate"] = options.get("sample_rate", 44100)
+            display_data["channels"] = options.get("channels", 1)
+            display_data["audio_url"] = (
+                f"/was/openreel_video/serve_audio?session_id={session_id}"
+            )
+
+        return display_data
 
     @classmethod
     def detect_output(cls, content: str) -> bool:
